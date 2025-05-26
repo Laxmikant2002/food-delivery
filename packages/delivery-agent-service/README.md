@@ -32,28 +32,379 @@ The delivery agent service exposes the following API endpoints:
 - **PUT /delivery-agents/:id**: Update a delivery agent's information.
 - **DELETE /delivery-agents/:id**: Remove a delivery agent from the system.
 
-## Testing
+## API Testing with Postman
 
-To run the tests for the delivery agent service, use the following command:
+### Prerequisites
+1. Install [Postman](https://www.postman.com/downloads/)
+2. Have the service running locally (`pnpm dev`)
+3. PostgreSQL database running
 
-```bash
-pnpm test
+### Postman Collection
+
+Import the following requests into Postman to test the API endpoints:
+
+#### 1. Authentication
+```json
+{
+  "name": "Delivery Agent - Authentication",
+  "item": [
+    {
+      "name": "Create Delivery Agent",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation CreateDeliveryAgent($input: CreateDeliveryAgentInput!) { createDeliveryAgent(input: $input) { id name isAvailable } }",
+            "variables": {
+              "input": {
+                "name": "John Doe",
+                "email": "john.doe@example.com",
+                "password": "password123"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation Login($email: String!, $password: String!) { login(email: $email, password: $password) { token agent { id name isAvailable } } }",
+            "variables": {
+              "email": "john.doe@example.com",
+              "password": "password123"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
 ```
 
-## Docker
+#### 2. Order Management
+```json
+{
+  "name": "Delivery Agent - Order Management",
+  "item": [
+    {
+      "name": "Available Orders",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "query { availableOrders { id status pickupAddress deliveryAddress } }"
+          }
+        }
+      }
+    },
+    {
+      "name": "Order History",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "query { orderHistory { id status deliveryAddress deliveredAt } }"
+          }
+        }
+      }
+    },
+    {
+      "name": "Current Order",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "query { currentOrder { id status pickupAddress deliveryAddress } }"
+          }
+        }
+      }
+    }
+  ]
+}
+```
 
-To build and run the delivery agent service in a Docker container, use the following commands:
+#### 3. Delivery Status Management
+```json
+{
+  "name": "Delivery Agent - Status Management",
+  "item": [
+    {
+      "name": "Update Availability",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation UpdateAvailability($isAvailable: Boolean!) { updateAvailability(isAvailable: $isAvailable) { id name isAvailable } }",
+            "variables": {
+              "isAvailable": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Update Location",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation UpdateLocation($input: LocationInput!) { updateLocation(input: $input) { id } }",
+            "variables": {
+              "input": {
+                "latitude": 40.7128,
+                "longitude": -74.0060
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
 
-1. **Build the Docker image**:
-   ```bash
-   docker build -t delivery-agent-service .
-   ```
+#### 4. Delivery Process
+```json
+{
+  "name": "Delivery Agent - Delivery Process",
+  "item": [
+    {
+      "name": "Start Delivery",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation StartDelivery($orderId: ID!) { startDelivery(orderId: $orderId) { id status } }",
+            "variables": {
+              "orderId": "ORDER_ID"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Complete Delivery",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "mutation CompleteDelivery($orderId: ID!) { completeDelivery(orderId: $orderId) { id status deliveredAt } }",
+            "variables": {
+              "orderId": "ORDER_ID"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
 
-2. **Run the Docker container**:
-   ```bash
-   docker run -p 3000:3000 delivery-agent-service
-   ```
+#### 5. Admin Operations
+```json
+{
+  "name": "Delivery Agent - Admin Operations",
+  "item": [
+    {
+      "name": "List All Agents",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "query { deliveryAgents { id name isAvailable } }"
+          }
+        }
+      }
+    },
+    {
+      "name": "Get Available Agents",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:4002/graphql",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": {
+            "query": "query { availableDeliveryAgents { id name isAvailable } }"
+          }
+        }
+      }
+    }
+  ]
+}
+```
 
-## License
+### Testing Flow
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+1. **Authentication Flow**:
+   - Create a delivery agent account
+   - Login to get authentication token
+   - Set the token in Postman environment variables
+
+2. **Order Management Flow**:
+   - Check available orders
+   - Start a delivery
+   - Check current order
+   - Complete delivery
+   - Verify order history
+
+3. **Status Management Flow**:
+   - Update availability status
+   - Update location
+   - Verify status changes
+
+4. **Admin Operations Flow**:
+   - List all agents
+   - Check available agents
+   - Update agent details
+
+### Setting Up Environment Variables
+
+1. In Postman, create a new environment
+2. Add the following variables:
+   - `token`: (empty initially, will be filled after login)
+   - `baseUrl`: http://localhost:4002/graphql
+
+### Error Testing
+
+Test these scenarios to ensure proper error handling:
+
+1. Authentication errors:
+   - Invalid credentials
+   - Missing token
+   - Expired token
+
+2. Order management errors:
+   - Invalid order ID
+   - Already assigned orders
+   - Completed orders
+
+3. Status update errors:
+   - Invalid location data
+   - Unavailable while having active orders
+
+## Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Run tests
+pnpm test
+```

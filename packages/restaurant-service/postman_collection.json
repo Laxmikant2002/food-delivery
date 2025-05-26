@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "Restaurant Service API",
+    "description": "Collection for testing the Restaurant Service GraphQL API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GraphQL Queries",
+      "item": [
+        {
+          "name": "List All Restaurants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"query { restaurants { id name description isOnline } }\"}"
+            }
+          }
+        },
+        {
+          "name": "Get Menu Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"query($restaurantId: ID!) { menuItems(restaurantId: $restaurantId) { id name price description } }\", \"variables\": {\"restaurantId\": \"{{restaurantId}}\"}}"
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"query($restaurantId: ID!) { restaurantOrders(restaurantId: $restaurantId) { id status total items { quantity menuItem { name } } } }\", \"variables\": {\"restaurantId\": \"{{restaurantId}}\"}}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GraphQL Mutations",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"mutation($input: CreateRestaurantInput!) { createRestaurant(input: $input) { id name description } }\", \"variables\": {\"input\": {\"name\": \"Pizza Palace\", \"description\": \"Best Italian Pizza\"}}}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "if (jsonData.data && jsonData.data.createRestaurant) {",
+                  "    pm.environment.set(\"restaurantId\", jsonData.data.createRestaurant.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"mutation($input: CreateMenuItemInput!) { createMenuItem(input: $input) { id name price } }\", \"variables\": {\"input\": {\"name\": \"Margherita Pizza\", \"description\": \"Classic Italian Pizza\", \"price\": 12.99, \"restaurantId\": \"{{restaurantId}}\"}}}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = JSON.parse(responseBody);",
+                  "if (jsonData.data && jsonData.data.createMenuItem) {",
+                  "    pm.environment.set(\"menuItemId\", jsonData.data.createMenuItem.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"mutation($id: ID!, $input: UpdateMenuItemInput!) { updateMenuItem(id: $id, input: $input) { id name price } }\", \"variables\": {\"id\": \"{{menuItemId}}\", \"input\": {\"price\": 13.99}}}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4001",
+      "type": "string"
+    }
+  ]
+}

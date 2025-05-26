@@ -9,7 +9,7 @@ import type { Request } from 'express';
 
 const prisma = new PrismaClient();
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4001;
 
 interface ApolloContext {
   req: Request;
@@ -25,7 +25,7 @@ const server = new ApolloServer({
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as { userId: string };
-        const foundUser = await prisma.users.findUnique({
+        const foundUser = await prisma.user.findUnique({
           where: { id: decoded.userId },
           select: {
             id: true,
@@ -49,8 +49,6 @@ const server = new ApolloServer({
 
 const startServer = async () => {
   await server.start();
-  
-  // Use type assertion to handle Express compatibility
   server.applyMiddleware({ app: app as any });
 
   app.listen(port, () => {

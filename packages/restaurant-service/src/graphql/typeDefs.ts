@@ -76,7 +76,6 @@ export const typeDefs = gql`
     status: OrderStatus!
     rejectionReason: String
   }
-
   type Query {
     restaurant(id: ID!): Restaurant
     restaurants: [Restaurant!]!
@@ -84,13 +83,20 @@ export const typeDefs = gql`
     menuItems(restaurantId: ID!): [MenuItem!]!
     order(id: ID!): Order
     restaurantOrders(restaurantId: ID!): [Order!]!
+    pendingOrders: [Order!]!
   }
-
-  type Mutation {
+  input UpdateRestaurantInput {
+    name: String
+    description: String
+    isOnline: Boolean
+  }  type Mutation {
     createMenuItem(input: CreateMenuItemInput!): MenuItem!
     updateMenuItem(id: ID!, input: UpdateMenuItemInput!): MenuItem!
     deleteMenuItem(id: ID!): MenuItem!
     updateOrderStatus(input: UpdateOrderStatusInput!): Order!
     toggleRestaurantAvailability(id: ID!): Restaurant!
+    updateRestaurant(id: ID!, input: UpdateRestaurantInput!): Restaurant!
+    acceptOrder(orderId: ID!): Order!
+    rejectOrder(orderId: ID!, reason: String!): Order!
   }
 `; 

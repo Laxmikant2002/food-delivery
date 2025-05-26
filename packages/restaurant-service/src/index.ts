@@ -16,7 +16,7 @@ interface Context {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }: ExpressContext): Promise<Context> => {
+  context: async (_: ExpressContext): Promise<Context> => {
     // Add authentication logic here
     return { prisma };
   },
@@ -24,7 +24,7 @@ const server = new ApolloServer({
 
 const startServer = async () => {
   await server.start();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app: app as any });
 
   app.listen(port, () => {
     console.log(`🚀 Restaurant service ready at http://localhost:${port}${server.graphqlPath}`);

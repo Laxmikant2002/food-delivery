@@ -1,7 +1,6 @@
 import { AuthenticationError, UserInputError } from 'apollo-server-express';
 import { Context } from './middleware/auth';
-import { PrismaClient } from '@prisma/client';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client'; // Remove PrismaClient import
 
 export const resolvers = {
   Query: {
@@ -13,8 +12,10 @@ export const resolvers = {
             menuItems: true,
             orders: {
               include: {
-                orderItems: {
-                  include: { menuItem: true }
+                orderItems: { // Changed from OrderItems to orderItems
+                  include: {
+                    menuItem: true
+                  }
                 }
               }
             }
@@ -34,19 +35,17 @@ export const resolvers = {
 
     restaurantOrders: async (_: any, { status }: { status?: OrderStatus }, { prisma, user }: Context) => {
       try {
-        return await prisma.order.findMany({
+        const orders = await prisma.order.findMany({
           where: {
-            restaurantId: user.restaurantId,
-            ...(status && { status })
+            status: status || undefined,
+            restaurantId: user.restaurantId
           },
           include: {
-            orderItems: {
-              include: { menuItem: true }
-            },
-            deliveryAgent: true
-          },
-          orderBy: { createdAt: 'desc' }
+            orderItems: true // Make sure this matches your schema exactly
+          }
         });
+
+        return orders;
       } catch (error) {
         console.error('Error fetching orders:', error);
         throw new Error('Failed to fetch orders');
@@ -242,4 +241,4 @@ export const resolvers = {
       }
     }
   }
-}; 
+};
