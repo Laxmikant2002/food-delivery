@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  orders    Order[]
+  ratings   Rating[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model DeliveryAgent {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  isAvailable Boolean @default(true)
+  orders Order[]
+  
+  @@map("delivery_agents")
+}
+
+model Order {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  restaurantId    String
+  status          OrderStatus    @default(PENDING)
+  items           OrderItem[]
+  total           Float
+  deliveryAddress String
+  rating          Rating?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  restaurant      Restaurant     @relation(fields: [restaurantId], references: [id])
+  deliveryAgent   DeliveryAgent? @relation(fields: [deliveryAgentId], references: [id])
+  deliveryAgentId String?       @db.Uuid
+
+  @@map("orders")
+}
+
+model Rating {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int      @db.SmallInt
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ratings")
+}
+
+model Restaurant {
+  id                String     @id @default(uuid()) @db.Uuid
+  name              String
+  isOnline          Boolean    @default(true)
+  availabilityStart DateTime   @db.Time
+  availabilityEnd   DateTime   @db.Time
+  menuItems         MenuItem[]
+  orders            Order[]
+  
+  @@map("restaurants")
+}
+
+model MenuItem {
+  id           String      @id @default(uuid()) @db.Uuid
+  name         String
+  description  String?
+  price        Float
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  restaurantId String      @db.Uuid
+  orderItems   OrderItem[]
+
+  @@map("menu_items")
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  quantity   Int
+  menuItemId String   @db.Uuid
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PREPARATION
+  READY_FOR_PICKUP
+  IN_DELIVERY
+  DELIVERED
+  CANCELLED
+}

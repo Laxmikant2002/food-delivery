@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: food_delivery
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  user-service:
+    build:
+      context: ./packages/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/food_delivery_user
+      - JWT_SECRET=user_service_secret
+      - PORT=4000
+    depends_on:
+      - postgres
+
+  restaurant-service:
+    build:
+      context: ./packages/restaurant-service
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/food_delivery_restaurant
+      - JWT_SECRET=restaurant_service_secret
+      - PORT=4001
+    depends_on:
+      - postgres
+
+  delivery-agent-service:
+    build:
+      context: ./packages/delivery-agent-service
+      dockerfile: Dockerfile
+    ports:
+      - "4002:4002"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/food_delivery_delivery
+      - JWT_SECRET=delivery_service_secret
+      - PORT=4002
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

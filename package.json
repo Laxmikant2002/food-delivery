@@ -1,0 +1,19 @@
+{
+  "name": "food-delivery-monorepo",
+  "version": "1.0.0",
+  "description": "Food delivery application monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm -r run start",
+    "prisma:generate": "pnpm --filter @food-delivery/delivery-agent-service prisma:generate"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "typescript": "^4.5.0",
+    "pnpm": "^6.0.0"
+  }
+}

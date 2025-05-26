@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Prisma
+prisma/*.db
+**/prisma/migrations/*/
+prisma/migrations/*/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Temporary files
+*.log
+*.tmp
+.tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package manager locks (if you want to ignore them)
+# yarn.lock
+# package-lock.json
+# Keeping pnpm-lock.yaml as it's the primary package manager
+
+# Optional: Development databases
+*.sqlite
+*.sqlite3
+
+# GraphQL
+*.gql.d.ts
+*.graphql.d.ts

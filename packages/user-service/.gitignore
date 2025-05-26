@@ -1,0 +1,18 @@
+# Service-specific build outputs
+dist/
+build/
+
+# Service-specific coverage
+coverage/
+
+# Service-specific environment variables
+.env
+.env.local
+.env.*.local
+
+# Service-specific logs
+*.log
+
+# Prisma
+*.db
+migrations/*/

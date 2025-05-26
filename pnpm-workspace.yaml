@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - shared/*
+ignoredBuiltDependencies:
+  - '@apollo/protobufjs'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - prisma

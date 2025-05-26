@@ -1,0 +1,39 @@
+import { AuthenticationError } from 'apollo-server-express';
+import { verify } from 'jsonwebtoken';
+import { Request } from 'express';
+import { PrismaClient, User } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export interface Context {
+  req: Request;
+  user?: User;
+  prisma: PrismaClient;
+}
+
+export const getUser = async (token: string): Promise<User | null> => {
+  try {
+    const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
+    return await prisma.user.findUnique({ where: { id: decoded.userId } });
+  } catch (error) {
+    return null;
+  }
+};
+
+export const context = async ({ req }: { req: Request }): Promise<Context> => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '');
+  
+  const user = token ? await getUser(token) : undefined;
+  
+  return { req, user, prisma };
+};
+
+export const authDirective = {
+  auth: async (next: any, _: any, __: any, context: Context) => {
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in');
+    }
+    return next();
+  },
+}; 
