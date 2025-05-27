@@ -13,6 +13,8 @@
     "start": "pnpm -r run start",
     "prisma:generate": "pnpm -r run prisma:generate",
     "prisma:migrate": "pnpm -r run prisma:migrate",
+    "setup-dev": "bash ./scripts/setup-dev.sh",
+    "setup-dev:win": "./scripts/setup-dev.bat",
     "heroku-postbuild": "pnpm install && pnpm run build && pnpm run prisma:generate",
     "deploy:heroku": "git push heroku main",
     "deploy:netlify": "netlify deploy --prod"

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+
 import { OrderStatus } from '@food-delivery/shared-types';
 import { AuthenticatedRequest } from '../types/express';
 
@@ -13,7 +14,7 @@ export class RestaurantController {
             const { name, isOnline, menuItems } = req.body;
 
             // Check if user is authorized for this restaurant
-            if (!req.user || req.user.restaurantId !== restaurantId) {
+            if (!req.user || req.user.restaurant_id !== restaurantId) {
                 return res.status(403).json({ error: 'Not authorized to modify this restaurant' });
             }
             
@@ -80,7 +81,7 @@ export class RestaurantController {
             });
 
             // Check if user is authorized for this restaurant's orders
-            if (!req.user || !order || req.user.restaurantId !== order.restaurantId) {
+            if (!req.user || !order || req.user.restaurant_id !== order.restaurant_id) {
                 return res.status(403).json({ error: 'Not authorized to modify this order' });
             }
 
@@ -130,7 +131,7 @@ export class RestaurantController {
             });
 
             // Check if user is authorized for this restaurant's orders
-            if (!req.user || !order || req.user.restaurantId !== order.restaurantId) {
+            if (!req.user || !order || req.user.restaurant_id !== order.restaurant_id) {
                 return res.status(403).json({ error: 'Not authorized to modify this order' });
             }
 
@@ -145,7 +146,7 @@ export class RestaurantController {
             const updatedOrder = await prisma.order.update({
                 where: { id: orderId },
                 data: {
-                    deliveryAgentId,
+                    delivery_agent_id: deliveryAgentId,
                     status: OrderStatus.IN_DELIVERY
                 },
                 include: {

@@ -1,4 +1,4 @@
-import { PrismaClient, OrderStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -19,8 +19,10 @@ async function createTestOrder() {
     // Create a test order
     const order = await prisma.order.create({
       data: {
-        restaurantId: restaurant.id,
-        status: OrderStatus.PENDING,
+        restaurant_id: restaurant.id,
+        user_id: 'test-user-id', // Replace with a valid user ID from your database
+        delivery_address: '123 Test Street, Test City', // Replace with a valid address
+        status: 'PENDING',
         total: restaurant.menuItems[0].price,
         items: {
           create: [

@@ -101,22 +101,57 @@ NODE_ENV=production
 
 ## Running Locally
 
-1. Install dependencies:
+### Prerequisites
+- Node.js (v14 or higher)
+- PostgreSQL
+- Docker (optional)
+- pnpm (`npm install -g pnpm`)
+
+### Setup Steps
+
+1. **Install Dependencies**:
 ```bash
 pnpm install
 ```
 
-2. Copy environment files:
+2. **Setup Environment Variables**:
 ```bash
 cp packages/user-service/.env.example packages/user-service/.env
 cp packages/restaurant-service/.env.example packages/restaurant-service/.env
 cp packages/delivery-agent-service/.env.example packages/delivery-agent-service/.env
 ```
 
-3. Start services:
+3. **Database Setup**:
+
+Option 1 - Using Docker:
 ```bash
-pnpm dev
+# Start PostgreSQL and create databases
+docker compose -f docker-compose.dev.yml up -d
 ```
+
+Option 2 - Using Local PostgreSQL:
+```bash
+# Create databases
+psql -U postgres -c "CREATE DATABASE food_delivery_user;"
+psql -U postgres -c "CREATE DATABASE food_delivery_restaurant;"
+psql -U postgres -c "CREATE DATABASE food_delivery_delivery;"
+```
+
+4. **Run Prisma Migrations**:
+```bash
+pnpm prisma:generate  # Generate Prisma clients
+pnpm prisma:migrate   # Run migrations for all services
+```
+
+5. **Start Services**:
+```bash
+pnpm dev  # Starts all services in development mode
+```
+
+The services will be available at:
+- User Service: http://localhost:4000
+- Restaurant Service: http://localhost:4001
+- Delivery Agent Service: http://localhost:4002
 
 ## Contributing
 

@@ -12,13 +12,10 @@ export const getUser = async (token: string): Promise<UserType | null> => {
     const decoded = verify(token, process.env.JWT_SECRET!) as { userId: string };
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) return null;
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
+    
+    // Only return non-sensitive user data
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword as UserType;
   } catch (error) {
     return null;
   }

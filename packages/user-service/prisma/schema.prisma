@@ -20,44 +20,36 @@ model User {
   @@map("users")
 }
 
-model DeliveryAgent {
-  id          String  @id @default(uuid()) @db.Uuid
-  name        String
-  isAvailable Boolean @default(true)
-  orders      Order[]
-
-  @@map("delivery_agents")
-}
-
 model Order {
   id              String         @id @default(uuid()) @db.Uuid
-  userId          String         @db.Uuid
-  user            User           @relation(fields: [userId], references: [id])
-  restaurantId    String         @db.Uuid
-  status          OrderStatus    @default(PENDING)
-  items           OrderItem[]
+  user            User           @relation(fields: [user_id], references: [id])
+  user_id         String         @db.Uuid @map("userId")
+  restaurant      Restaurant     @relation(fields: [restaurant_id], references: [id])  
+  restaurant_id   String         @db.Uuid @map("restaurantId")
+  deliveryAgent   DeliveryAgent? @relation(fields: [delivery_agent_id], references: [id])
+  delivery_agent_id String?      @db.Uuid @map("deliveryAgentId")
+  status          String         @default("PENDING")
   total           Float
-  deliveryAddress String
+  delivery_address String        @map("deliveryAddress")
+  items           OrderItem[]
   rating          Rating?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  restaurant      Restaurant     @relation(fields: [restaurantId], references: [id])
-  deliveryAgent   DeliveryAgent? @relation(fields: [deliveryAgentId], references: [id])
-  deliveryAgentId String?        @db.Uuid
+  rejection_reason String?       @map("rejectionReason")
+  created_at       DateTime      @default(now()) @map("createdAt")
+  updated_at       DateTime      @updatedAt @map("updatedAt")
 
   @@map("orders")
 }
 
 model Rating {
   id               String     @id @default(uuid()) @db.Uuid
-  orderId          String     @unique @db.Uuid
   order            Order      @relation(fields: [orderId], references: [id])
-  userId           String     @db.Uuid
+  orderId          String     @unique @db.Uuid
   user             User       @relation(fields: [userId], references: [id])
-  restaurantId     String     @db.Uuid
+  userId           String     @db.Uuid
   restaurant       Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantRating Int        @db.SmallInt
-  deliveryRating   Int?       @db.SmallInt
+  restaurantId     String     @db.Uuid
+  restaurantRating Int
+  deliveryRating   Int?
   comment          String?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
@@ -68,13 +60,16 @@ model Rating {
 model Restaurant {
   id                String     @id @default(uuid()) @db.Uuid
   name              String
+  description       String?
   cuisine           String[]
   isOnline          Boolean    @default(true)
-  availabilityStart DateTime   @db.Time
-  availabilityEnd   DateTime   @db.Time
+  availabilityStart DateTime
+  availabilityEnd   DateTime
   menuItems         MenuItem[]
   orders            Order[]
   ratings           Rating[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@map("restaurants")
 }
@@ -87,30 +82,30 @@ model MenuItem {
   restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
   restaurantId String      @db.Uuid
   orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@map("menu_items")
 }
 
 model OrderItem {
   id         String   @id @default(uuid()) @db.Uuid
-  quantity   Int
-  menuItemId String   @db.Uuid
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-  orderId    String   @db.Uuid
   order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String   @db.Uuid
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItemId String   @db.Uuid
+  quantity   Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@map("order_items")
 }
 
-enum OrderStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  IN_PREPARATION
-  READY_FOR_PICKUP
-  IN_DELIVERY
-  DELIVERED
-  CANCELLED
+model DeliveryAgent {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String
+  isAvailable Boolean @default(true)
+  orders      Order[]
+
+  @@map("delivery_agents")
 }

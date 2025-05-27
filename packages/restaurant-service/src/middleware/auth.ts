@@ -17,7 +17,7 @@ export const getUser = async (token: string): Promise<any | null> => {
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: decoded.restaurantId }
     });
-    return restaurant ? { ...restaurant, restaurantId: restaurant.id } : null;
+    return restaurant ? { ...restaurant, restaurant_id: restaurant.id } : null;
   } catch (error) {
     return null;
   }

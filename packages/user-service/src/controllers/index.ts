@@ -1,12 +1,6 @@
 import { Request, Response } from 'express';
-import { PrismaClient, OrderStatus } from '@prisma/client';
-import { UserType } from '../types/context';
-
-interface AuthenticatedRequest extends Request {
-    user?: UserType;
-}
-
-const prisma = new PrismaClient();
+import { AuthenticatedRequest } from '../types/express';
+import { prisma } from '../types/prisma';
 
 export class UserController {
     // Get available restaurants
@@ -80,15 +74,17 @@ export class UserController {
 
             const order = await prisma.order.create({
                 data: {
-                    userId,
-                    restaurantId,
-                    status: OrderStatus.PENDING,
+                    user_id: userId,
+                    restaurant_id: restaurantId,
+                    status: "PENDING",
                     total,
-                    deliveryAddress,
+                    delivery_address: deliveryAddress,
                     items: {
                         create: items.map(item => ({
                             quantity: item.quantity,
-                            menuItemId: item.menuItemId
+                            menuItem: {
+                                connect: { id: item.menuItemId }
+                            }
                         }))
                     }
                 },
@@ -106,6 +102,37 @@ export class UserController {
         } catch (error) {
             console.error('Error placing order:', error);
             return res.status(500).json({ error: 'Failed to place order' });
+        }
+    }
+
+    // Get user orders
+    async getOrders(req: AuthenticatedRequest, res: Response) {
+        try {
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res.status(401).json({ error: 'Authentication required' });
+            }
+
+            const orders = await prisma.order.findMany({
+                where: { user_id: userId },
+                include: {
+                    items: {
+                        include: {
+                            menuItem: true
+                        }
+                    },
+                    restaurant: true
+                },
+                orderBy: {
+                    created_at: 'desc'
+                }
+            });
+
+            return res.json(orders);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+            return res.status(500).json({ error: 'Failed to fetch orders' });
         }
     }
 
@@ -131,14 +158,9 @@ export class UserController {
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            if (order.userId !== userId) {
+            if (order.user_id !== userId) {
                 return res.status(403).json({ error: 'Not authorized to rate this order' });
             }
-
-            // Temporarily removed delivery status check for testing
-            // if (order.status !== OrderStatus.DELIVERED) {
-            //     return res.status(400).json({ error: 'Can only rate delivered orders' });
-            // }
 
             const existingRating = await prisma.rating.findFirst({
                 where: { orderId }
@@ -152,7 +174,7 @@ export class UserController {
                 data: {
                     orderId,
                     userId,
-                    restaurantId: order.restaurantId,
+                    restaurantId: order.restaurant_id,
                     restaurantRating,
                     deliveryRating: deliveryRating || null,
                     comment: comment || null
@@ -163,37 +185,6 @@ export class UserController {
         } catch (error) {
             console.error('Error submitting rating:', error);
             return res.status(500).json({ error: 'Failed to submit rating' });
-        }
-    }
-
-    // Get user orders
-    async getOrders(req: AuthenticatedRequest, res: Response) {
-        try {
-            const userId = req.user?.id;
-
-            if (!userId) {
-                return res.status(401).json({ error: 'Authentication required' });
-            }
-
-            const orders = await prisma.order.findMany({
-                where: { userId },
-                include: {
-                    items: {
-                        include: {
-                            menuItem: true
-                        }
-                    },
-                    restaurant: true
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                }
-            });
-
-            return res.json(orders);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-            return res.status(500).json({ error: 'Failed to fetch orders' });
         }
     }
 }

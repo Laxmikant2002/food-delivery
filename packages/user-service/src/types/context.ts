@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { Request } from 'express';
 
-// Define a basic user type that matches our Prisma schema
+// Define a basic user type that matches our Prisma schema but omits sensitive fields
 export interface UserType {
   id: string;
   email: string;
   name: string;
   createdAt: Date;
   updatedAt: Date;
+  // password is omitted for security
 }
 
 export interface Context {
