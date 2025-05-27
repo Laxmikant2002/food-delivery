@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { prisma } from '../lib/prisma';
 import { AuthenticatedRequest } from '../types/express';
-import { prisma } from '../types/prisma';
 
 export class UserController {
     // Get available restaurants
@@ -93,8 +93,7 @@ export class UserController {
                         include: {
                             menuItem: true
                         }
-                    },
-                    restaurant: true
+                    }
                 }
             });
 
@@ -167,21 +166,19 @@ export class UserController {
             });
 
             if (existingRating) {
-                return res.status(400).json({ error: 'Order has already been rated' });
-            }
-
-            const newRating = await prisma.rating.create({
+                return res.status(400).json({ error: 'Order already rated' });
+            }            const rating = await prisma.rating.create({
                 data: {
                     orderId,
                     userId,
                     restaurantId: order.restaurant_id,
-                    restaurantRating,
-                    deliveryRating: deliveryRating || null,
+                    restaurantRating: parseInt(restaurantRating),
+                    deliveryRating: deliveryRating ? parseInt(deliveryRating) : null,
                     comment: comment || null
                 }
             });
 
-            return res.status(201).json(newRating);
+            return res.json(rating);
         } catch (error) {
             console.error('Error submitting rating:', error);
             return res.status(500).json({ error: 'Failed to submit rating' });
