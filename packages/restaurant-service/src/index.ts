@@ -1,36 +1,24 @@
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-import { typeDefs } from './graphql/typeDefs';
-import { resolvers } from './graphql/resolvers';
-import { PrismaClient } from '@prisma/client';
-import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import cors from 'cors';
+import routes from './routes';
 
-const prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 4001;
 
-interface Context {
-  prisma: PrismaClient;
-}
+// Apply middleware
+app.use(cors());
+app.use(express.json());
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: async (_: ExpressContext): Promise<Context> => {
-    // Add authentication logic here
-    return { prisma };
-  },
+// Set up REST routes
+app.use('/api', routes);
+
+// Error handling middleware
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
-const startServer = async () => {
-  await server.start();
-  server.applyMiddleware({ app: app as any });
-
-  app.listen(port, () => {
-    console.log(`🚀 Restaurant service ready at http://localhost:${port}${server.graphqlPath}`);
-  });
-};
-
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
+app.listen(port, () => {
+  console.log(`🚀 Restaurant service ready at http://localhost:${port}`);
 });

@@ -1,7 +1,7 @@
-import { AuthenticationError } from 'apollo-server-express';
+import { Response, NextFunction, Request } from 'express';
 import { verify } from 'jsonwebtoken';
-import { Request } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../types/express';
 
 const prisma = new PrismaClient();
 
@@ -24,19 +24,34 @@ export const getUser = async (token: string): Promise<any | null> => {
 };
 
 export const context = async ({ req }: { req: Request }): Promise<Context> => {
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.replace('Bearer ', '');
-  
-  const user = token ? await getUser(token) : undefined;
-  
-  return { req, user, prisma };
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace('Bearer ', '');
+    const user = token ? await getUser(token) : undefined;
+    return { req, user, prisma };
+  } catch (error) {
+    console.error('Context creation error:', error);
+    return { req, prisma };
+  }
 };
 
-export const authDirective = {
-  auth: async (next: any, _: any, __: any, context: Context) => {
-    if (!context.user) {
-      throw new AuthenticationError('You must be logged in as a restaurant');
+export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required' });
     }
-    return next();
-  },
-}; 
+
+    const user = await getUser(token);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }    req.user = user;
+    next();
+    return;
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return res.status(401).json({ error: 'Authentication failed' });
+  }
+};

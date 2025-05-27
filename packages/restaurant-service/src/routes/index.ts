@@ -1,15 +1,17 @@
 import express from 'express';
-import { RestaurantController } from '../controllers';
+import { authenticate } from '../middleware/auth';
+import RestaurantController from '../controllers';
 
 const router = express.Router();
 const restaurantController = new RestaurantController();
 
-export const setRoutes = () => {
-    router.get('/restaurants', restaurantController.getAllRestaurants.bind(restaurantController));
-    router.get('/restaurants/:id', restaurantController.getRestaurantById.bind(restaurantController));
-    router.post('/restaurants', restaurantController.createRestaurant.bind(restaurantController));
-    router.put('/restaurants/:id', restaurantController.updateRestaurant.bind(restaurantController));
-    router.delete('/restaurants/:id', restaurantController.deleteRestaurant.bind(restaurantController));
+// Public routes
+router.get('/restaurants', restaurantController.getAllRestaurants.bind(restaurantController));
+router.get('/restaurants/:id', restaurantController.getRestaurant.bind(restaurantController));
 
-    return router;
-};
+// Protected routes
+router.put('/restaurants/:id', authenticate, restaurantController.updateRestaurant.bind(restaurantController));
+router.put('/orders/:id/accept', authenticate, restaurantController.acceptOrder.bind(restaurantController));
+router.put('/orders/:id/assign-agent', authenticate, restaurantController.assignDeliveryAgent.bind(restaurantController));
+
+export default router;
