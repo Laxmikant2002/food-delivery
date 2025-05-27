@@ -49,15 +49,18 @@ model Order {
 }
 
 model Rating {
-  id        String   @id @default(uuid()) @db.Uuid
-  orderId   String   @unique @db.Uuid
-  order     Order    @relation(fields: [orderId], references: [id])
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  rating    Int      @db.SmallInt
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String     @id @default(uuid()) @db.Uuid
+  orderId          String     @unique @db.Uuid
+  order            Order      @relation(fields: [orderId], references: [id])
+  userId           String     @db.Uuid
+  user             User       @relation(fields: [userId], references: [id])
+  restaurantId     String     @db.Uuid
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantRating Int        @db.SmallInt
+  deliveryRating   Int?       @db.SmallInt
+  comment          String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@map("ratings")
 }
@@ -65,11 +68,13 @@ model Rating {
 model Restaurant {
   id                String     @id @default(uuid()) @db.Uuid
   name              String
+  cuisine           String[]
   isOnline          Boolean    @default(true)
   availabilityStart DateTime   @db.Time
   availabilityEnd   DateTime   @db.Time
   menuItems         MenuItem[]
   orders            Order[]
+  ratings           Rating[]
 
   @@map("restaurants")
 }

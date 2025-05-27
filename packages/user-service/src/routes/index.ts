@@ -9,10 +9,12 @@ export function setRoutes(app: Router) {
     router.get('/restaurants', userController.getAvailableRestaurants);
     
     // Order routes
+    router.get('/orders', userController.getOrders);
     router.post('/orders', userController.placeOrder);
     
     // Rating routes
     router.post('/ratings', userController.submitRating);
 
-    app.use('/api', router);
+    // Mount routes at root level
+    app.use('/', router);
 }

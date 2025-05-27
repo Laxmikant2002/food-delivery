@@ -1,0 +1,206 @@
+{
+  "info": {
+    "_postman_id": "f78d8f3c-b350-4516-9301-e3eca48fa2b9",
+    "name": "Food Delivery - User Service",
+    "description": "Collection for testing the User Service API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Place Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4YTE5ZjdhMi0wYWIzLTRlN2UtOWVkZC0xYmZjMTUwZDE0NmIiLCJpYXQiOjE3NDgzMjQ1NzJ9.ifGaj6MEiQWSenjMdUpfnQUa8wTqLaHIsT8ON5t6Kew",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n  \"items\": [\n    {\n      \"menuItemId\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n      \"quantity\": 2\n    }\n  ],\n  \"deliveryAddress\": \"123 Main St\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4001/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4001",
+          "path": ["orders"]
+        },
+        "description": "Place a new order for food delivery"
+      },
+      "response": [
+        {
+          "name": "Successful Order Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n  \"items\": [\n    {\n      \"menuItemId\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n      \"quantity\": 2\n    }\n  ],\n  \"deliveryAddress\": \"123 Main St\"\n}"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n    \"id\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n    \"userId\": \"8a19f7a2-0ab3-4e7e-9edd-1bfc150d146b\",\n    \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n    \"status\": \"PENDING\",\n    \"total\": 25.98,\n    \"deliveryAddress\": \"123 Main St\",\n    \"createdAt\": \"2025-05-27T05:45:32.917Z\",\n    \"updatedAt\": \"2025-05-27T05:45:32.917Z\",\n    \"deliveryAgentId\": null,\n    \"items\": [\n        {\n            \"id\": \"9b135adf-9555-48f6-9629-cf6823209ab7\",\n            \"quantity\": 2,\n            \"menuItemId\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n            \"orderId\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n            \"createdAt\": \"2025-05-27T05:45:32.917Z\",\n            \"updatedAt\": \"2025-05-27T05:45:32.917Z\",\n            \"menuItem\": {\n                \"id\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n                \"name\": \"Margherita Pizza\",\n                \"description\": \"Classic tomato and mozzarella pizza\",\n                \"price\": 12.99,\n                \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\"\n            }\n        }\n    ],\n    \"restaurant\": {\n        \"id\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n        \"name\": \"Test Restaurant\",\n        \"cuisine\": [\n            \"Italian\",\n            \"Pizza\"\n        ],\n        \"isOnline\": true,\n        \"availabilityStart\": \"1970-01-01T09:00:00.000Z\",\n        \"availabilityEnd\": \"1970-01-01T23:00:00.000Z\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Submit Rating",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4YTE5ZjdhMi0wYWIzLTRlN2UtOWVkZC0xYmZjMTUwZDE0NmIiLCJpYXQiOjE3NDgzMjQ1NzJ9.ifGaj6MEiQWSenjMdUpfnQUa8wTqLaHIsT8ON5t6Kew",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n  \"restaurantRating\": 5,\n  \"deliveryRating\": 4,\n  \"comment\": \"Great food and quick delivery!\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4001/ratings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4001",
+          "path": ["ratings"]
+        },
+        "description": "Submit a rating for an order"
+      },
+      "response": [
+        {
+          "name": "Successful Rating Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n  \"restaurantRating\": 5,\n  \"deliveryRating\": 4,\n  \"comment\": \"Great food and quick delivery!\"\n}"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n    \"id\": \"df665be2-8186-4927-8252-6202a36961d4\",\n    \"orderId\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n    \"userId\": \"8a19f7a2-0ab3-4e7e-9edd-1bfc150d146b\",\n    \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n    \"restaurantRating\": 5,\n    \"deliveryRating\": 4,\n    \"comment\": \"Great food and quick delivery!\",\n    \"createdAt\": \"2025-05-27T05:47:40.212Z\",\n    \"updatedAt\": \"2025-05-27T05:47:40.212Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Orders",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4YTE5ZjdhMi0wYWIzLTRlN2UtOWVkZC0xYmZjMTUwZDE0NmIiLCJpYXQiOjE3NDgzMjQ1NzJ9.ifGaj6MEiQWSenjMdUpfnQUa8wTqLaHIsT8ON5t6Kew",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:4001/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4001",
+          "path": ["orders"]
+        },
+        "description": "Get all orders for the authenticated user"
+      },
+      "response": [
+        {
+          "name": "Successful Orders Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": []
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "[\n    {\n        \"id\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n        \"userId\": \"8a19f7a2-0ab3-4e7e-9edd-1bfc150d146b\",\n        \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n        \"status\": \"PENDING\",\n        \"total\": 25.98,\n        \"deliveryAddress\": \"123 Main St\",\n        \"createdAt\": \"2025-05-27T05:45:32.917Z\",\n        \"updatedAt\": \"2025-05-27T05:45:32.917Z\",\n        \"deliveryAgentId\": null,\n        \"items\": [\n            {\n                \"id\": \"9b135adf-9555-48f6-9629-cf6823209ab7\",\n                \"quantity\": 2,\n                \"menuItemId\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n                \"orderId\": \"55370780-66e3-4086-9980-9bda78d4c12a\",\n                \"createdAt\": \"2025-05-27T05:45:32.917Z\",\n                \"updatedAt\": \"2025-05-27T05:45:32.917Z\",\n                \"menuItem\": {\n                    \"id\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n                    \"name\": \"Margherita Pizza\",\n                    \"description\": \"Classic tomato and mozzarella pizza\",\n                    \"price\": 12.99,\n                    \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\"\n                }\n            }\n        ],\n        \"restaurant\": {\n            \"id\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n            \"name\": \"Test Restaurant\",\n            \"cuisine\": [\n                \"Italian\",\n                \"Pizza\"\n            ],\n            \"isOnline\": true,\n            \"availabilityStart\": \"1970-01-01T09:00:00.000Z\",\n            \"availabilityEnd\": \"1970-01-01T23:00:00.000Z\"\n        }\n    }\n]"
+        }
+      ]
+    },
+    {      "name": "Get Available Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:4001/restaurants",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4001",
+          "path": ["restaurants"]
+        },
+        "description": "Get list of all available restaurants"
+      },
+      "response": [
+        {
+          "name": "Successful Restaurants Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": []
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "[\n    {\n        \"id\": \"aeff4031-9a44-476a-a892-21eeda188877\",\n        \"name\": \"Test Restaurant\",\n        \"cuisine\": [\"Italian\", \"Pizza\"],\n        \"isOnline\": true,\n        \"availabilityStart\": \"1970-01-01T09:00:00.000Z\",\n        \"availabilityEnd\": \"1970-01-01T23:00:00.000Z\",\n        \"menuItems\": [\n            {\n                \"id\": \"12559be4-b397-411d-be29-b6d7cb6da3e1\",\n                \"name\": \"Margherita Pizza\",\n                \"description\": \"Classic tomato and mozzarella pizza\",\n                \"price\": 12.99,\n                \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\"\n            },\n            {\n                \"id\": \"9b135adf-9555-48f6-9629-cf6823209ab7\",\n                \"name\": \"Pasta Carbonara\",\n                \"description\": \"Creamy pasta with bacon and egg\",\n                \"price\": 14.99,\n                \"restaurantId\": \"aeff4031-9a44-476a-a892-21eeda188877\"\n            }\n        ]\n    }\n]"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4YTE5ZjdhMi0wYWIzLTRlN2UtOWVkZC0xYmZjMTUwZDE0NmIiLCJpYXQiOjE3NDgzMjQ1NzJ9.ifGaj6MEiQWSenjMdUpfnQUa8wTqLaHIsT8ON5t6Kew",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4001",
+      "type": "string"
+    }
+  ]
+}
