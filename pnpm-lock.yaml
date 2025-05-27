@@ -148,23 +148,14 @@ importers:
 
   packages/user-service:
     dependencies:
+      '@food-delivery/shared-types':
+        specifier: workspace:*
+        version: link:../../shared/types
       '@prisma/client':
         specifier: ^6.8.2
         version: 6.8.2(prisma@6.8.2(typescript@5.8.3))(typescript@5.8.3)
-      '@types/body-parser':
-        specifier: ^1.19.5
-        version: 1.19.5
-      apollo-server-express:
-        specifier: ^3.13.0
-        version: 3.13.0(express@4.21.2)(graphql@16.11.0)
-      bcryptjs:
-        specifier: ^2.4.3
-        version: 2.4.3
-      body-parser:
-        specifier: ^2.2.0
-        version: 2.2.0
       express:
-        specifier: ^4.21.2
+        specifier: ^4.17.1
         version: 4.21.2
       graphql:
         specifier: ^16.11.0
