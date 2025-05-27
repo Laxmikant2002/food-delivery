@@ -29,13 +29,13 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
   try {
     const { id } = req.params;
     const { status } = req.body as { status: OrderStatus };
-    const delivery_agent_id = req.user?.id;
+    const deliveryAgentId = req.user?.id;
 
     // Verify the order belongs to this delivery agent
     const order = await prisma.order.findFirst({
       where: { 
         id,
-        delivery_agent_id
+        deliveryAgentId
       }
     });
 
@@ -54,13 +54,12 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
     // Build update data object
     const updateData: any = {
       status,
-      updated_at: new Date()
     };
 
     if (status === OrderStatus.PICKED_UP) {
-      updateData.pickup_time = new Date();
+      updateData.pickupTime = new Date();
     } else if (status === OrderStatus.DELIVERED) {
-      updateData.delivered_time = new Date();
+      updateData.deliveredTime = new Date();
     }
 
     const updatedOrder = await prisma.order.update({
@@ -71,8 +70,8 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
     return res.json({
       id: updatedOrder.id,
       status: updatedOrder.status,
-      updated_at: updatedOrder.updated_at,
-      delivery_agent_id: updatedOrder.delivery_agent_id
+      updatedAt: updatedOrder.updatedAt,
+      deliveryAgentId: updatedOrder.deliveryAgentId
     });
   } catch (error) {
     console.error('Error updating order status:', error);
