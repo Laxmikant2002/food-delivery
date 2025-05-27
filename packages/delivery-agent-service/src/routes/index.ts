@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { DeliveryAgentController } from '../controllers';
+import { updateOrderStatus } from '../controllers';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
-const deliveryAgentController = new DeliveryAgentController();
 
-router.get('/delivery-agents', deliveryAgentController.getAll);
-router.get('/delivery-agents/:id', deliveryAgentController.getById);
-router.post('/delivery-agents', deliveryAgentController.create);
-router.put('/delivery-agents/:id', deliveryAgentController.update);
-router.delete('/delivery-agents/:id', deliveryAgentController.delete);
+// Protected routes - require authentication
+router.use(authenticate);
+
+// PUT /orders/:id/status - Update delivery status
+router.put('/orders/:id/status', updateOrderStatus);
 
 export default router;

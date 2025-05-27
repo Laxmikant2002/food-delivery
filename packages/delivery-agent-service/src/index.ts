@@ -1,28 +1,26 @@
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-import { typeDefs } from './graphql/typeDefs';
-import { resolvers } from './graphql/resolvers';
-import { context } from './middleware/auth';
+import cors from 'cors';
+import routes from './routes';
+
 const app = express();
 const port = process.env.PORT || 4002;
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context,
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api', routes);
+
+// Error handling middleware
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const startServer = async () => {
-  await server.start();
-  server.applyMiddleware({ app: app as any });
-
-  app.listen(port, () => {
-    console.log(`🚀 Delivery Agent service ready at http://localhost:${port}${server.graphqlPath}`);
-  });
-};
-
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
+// Start server
+app.listen(port, () => {
+  console.log(`🚀 Delivery Agent service ready at http://localhost:${port}`);
 });
 
 export { app };

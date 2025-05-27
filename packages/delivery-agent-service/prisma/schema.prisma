@@ -8,37 +8,41 @@ datasource db {
 }
 
 model DeliveryAgent {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  password        String
-  isAvailable     Boolean  @default(true)
-  currentLocation Json?
-  currentOrderId  String?  @unique
-  currentOrder    Order?   @relation("CurrentDelivery", fields: [currentOrderId], references: [id])
-  orders          Order[]  @relation("DeliveryHistory")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  password  String
+  name      String
+  isOnline  Boolean  @default(true)
+  location  Json?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("delivery_agents")
 }
 
 model Order {
-  id                    String         @id @default(uuid())
-  status                OrderStatus    @default(PENDING)
-  pickupAddress         String
-  deliveryAddress       String
-  deliveryAgent         DeliveryAgent? @relation("DeliveryHistory", fields: [deliveryAgentId], references: [id])
-  deliveryAgentId       String?
-  currentDelivery       DeliveryAgent? @relation("CurrentDelivery")
-  estimatedDeliveryTime DateTime?
-  deliveredAt           DateTime?
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
+  id              String        @id @default(uuid()) @db.Uuid
+  status          OrderStatus   @default(PENDING)
+  restaurantId    String       @db.Uuid
+  userId          String       @db.Uuid
+  deliveryAgent   DeliveryAgent @relation(fields: [deliveryAgentId], references: [id])
+  deliveryAgentId String       @db.Uuid
+  pickupAddress   String
+  deliveryAddress String
+  deliveryNotes   String?
+  pickupTime      DateTime?
+  deliveredTime   DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("orders")
 }
 
 enum OrderStatus {
   PENDING
-  ACCEPTED
-  IN_DELIVERY
+  PICKED_UP
+  IN_TRANSIT
   DELIVERED
   CANCELLED
 }
