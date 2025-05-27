@@ -19,7 +19,18 @@ app.use(async (req: any, _res, next) => {
 // Apply routes
 setRoutes(app);
 
+// Error handling
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`🚀 User service running at http://localhost:${port}`);
+}).on('error', (error) => {
+  console.error('Server failed to start:', error);
 });
