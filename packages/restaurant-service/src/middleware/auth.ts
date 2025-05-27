@@ -1,5 +1,5 @@
-import { Response, NextFunction, Request } from 'express';
-import { verify } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '../types/express';
 
@@ -13,7 +13,7 @@ export interface Context {
 
 export const getUser = async (token: string): Promise<any | null> => {
   try {
-    const decoded = verify(token, process.env.JWT_SECRET!) as { restaurantId: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { restaurantId: string };
     const restaurant = await prisma.restaurant.findUnique({
       where: { id: decoded.restaurantId }
     });

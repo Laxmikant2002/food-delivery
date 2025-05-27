@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { PrismaClient, OrderStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { OrderStatus } from '@food-delivery/shared-types';
 import { AuthenticatedRequest } from '../types/express';
 
 const prisma = new PrismaClient();

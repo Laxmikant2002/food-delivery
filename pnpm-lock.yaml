@@ -78,6 +78,9 @@ importers:
       '@apollo/server':
         specifier: ^4.12.1
         version: 4.12.1(graphql@16.11.0)
+      '@food-delivery/shared-types':
+        specifier: workspace:*
+        version: link:../../shared/types
       '@prisma/client':
         specifier: ^6.8.2
         version: 6.8.2(prisma@6.8.2(typescript@5.8.3))(typescript@5.8.3)
@@ -190,6 +193,12 @@ importers:
         version: 2.0.0(@types/node@20.17.50)(typescript@5.8.3)
       typescript:
         specifier: ^5.8.3
+        version: 5.8.3
+
+  shared/types:
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
         version: 5.8.3
 
   shared/utils:

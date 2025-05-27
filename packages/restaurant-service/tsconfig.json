@@ -1,4 +1,5 @@
 {
+  "extends": "../../shared/config/tsconfig.base.json",
   "compilerOptions": {
     "target": "es2018",
     "module": "commonjs",
@@ -22,8 +23,10 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "types": ["node", "express"]
+    "paths": {
+      "@food-delivery/shared-types": ["../../shared/types"]
+    }
   },
-  "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts"]
+  "include": ["src/**/*", "../../shared/types/**/*"],
+  "exclude": ["node_modules"]
 }
