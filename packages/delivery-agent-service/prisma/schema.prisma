@@ -14,9 +14,9 @@ model DeliveryAgent {
   name      String
   isOnline  Boolean  @default(true)
   location  Json?
-  orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orders    Order[]
 
   @@map("delivery_agents")
 }
@@ -24,17 +24,17 @@ model DeliveryAgent {
 model Order {
   id              String        @id @default(uuid()) @db.Uuid
   status          OrderStatus   @default(PENDING)
-  restaurantId    String       @db.Uuid
-  userId          String       @db.Uuid
-  deliveryAgent   DeliveryAgent @relation(fields: [deliveryAgentId], references: [id])
-  deliveryAgentId String       @db.Uuid
+  restaurantId    String        @db.Uuid
+  userId          String        @db.Uuid
+  deliveryAgentId String        @db.Uuid
   pickupAddress   String
   deliveryAddress String
   deliveryNotes   String?
   pickupTime      DateTime?
   deliveredTime   DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deliveryAgent   DeliveryAgent @relation(fields: [deliveryAgentId], references: [id])
 
   @@map("orders")
 }

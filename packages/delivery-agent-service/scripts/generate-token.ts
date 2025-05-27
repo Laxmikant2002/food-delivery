@@ -8,32 +8,41 @@ const prisma = new PrismaClient();
 
 async function generateToken() {
   try {
-    // Create a test delivery agent if it doesn't exist
-    const testAgent = await prisma.deliveryAgent.upsert({
-      where: {
-        email: 'test.agent@example.com',
-      },
-      update: {},
-      create: {
-        email: 'test.agent@example.com',
-        password: 'test123', // In production, this should be hashed
-        name: 'Test Agent',
-        isOnline: true,
-      },
-    });
+    // Create or update the test delivery agent
+    const agent = await prisma.$queryRaw`
+      INSERT INTO delivery_agents (id, email, password, name, "isOnline", "createdAt", "updatedAt")
+      VALUES (
+        gen_random_uuid(),
+        'test.agent@example.com',
+        'test123',
+        'Test Agent',
+        true,
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT (email) 
+      DO UPDATE SET
+        "isOnline" = true,
+        "updatedAt" = NOW()
+      RETURNING *;
+    `;
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { agentId: testAgent.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '1h' }
-    );
+    if (Array.isArray(agent) && agent.length > 0) {
+      const deliveryAgent = agent[0];
 
-    console.log('Test Delivery Agent created:');
-    console.log('ID:', testAgent.id);
-    console.log('Email:', testAgent.email);
-    console.log('\nJWT Token:');
-    console.log(token);
+      // Generate JWT token
+      const token = jwt.sign(
+        { agentId: deliveryAgent.id },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '1h' }
+      );
+
+      console.log('Test Delivery Agent:');
+      console.log('ID:', deliveryAgent.id);
+      console.log('Email:', deliveryAgent.email);
+      console.log('\nJWT Token:');
+      console.log(token);
+    }
   } catch (error) {
     console.error('Error:', error);
   } finally {
