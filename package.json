@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "description": "Food delivery application monorepo",
   "private": true,
+  "engines": {
+    "node": ">=14.0.0",
+    "pnpm": ">=6.0.0"
+  },
   "scripts": {
     "dev": "pnpm -r run dev",
     "build": "pnpm -r run build",
     "start": "pnpm -r run start",
-    "prisma:generate": "pnpm --filter @food-delivery/delivery-agent-service prisma:generate"
+    "prisma:generate": "pnpm -r run prisma:generate",
+    "prisma:migrate": "pnpm -r run prisma:migrate",
+    "heroku-postbuild": "pnpm install && pnpm run build && pnpm run prisma:generate",
+    "deploy:heroku": "git push heroku main",
+    "deploy:netlify": "netlify deploy --prod"
   },
   "workspaces": [
     "packages/*"
