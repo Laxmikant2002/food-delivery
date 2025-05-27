@@ -5,16 +5,14 @@ const router = Router();
 const userController = new UserController();
 
 export function setRoutes(app: Router) {
-    app.use('/api/users', router);
+    // Restaurant routes
+    router.get('/restaurants', userController.getAvailableRestaurants);
     
-    // User routes
-    router.get('/', userController.getAllUsers.bind(userController));
-    router.post('/', userController.createUser.bind(userController));
-    router.get('/:id', userController.getUserById.bind(userController));
-    router.put('/:id', userController.updateUser.bind(userController));
-    router.delete('/:id', userController.deleteUser.bind(userController));
+    // Order routes
+    router.post('/orders', userController.placeOrder);
     
-    // Profile routes
-    app.put('/api/profile', userController.updateProfile.bind(userController));
-    app.delete('/api/profile', userController.deleteAccount.bind(userController));
+    // Rating routes
+    router.post('/ratings', userController.submitRating);
+
+    app.use('/api', router);
 }

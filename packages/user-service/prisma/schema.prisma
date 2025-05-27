@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -21,11 +21,11 @@ model User {
 }
 
 model DeliveryAgent {
-  id String @id @default(uuid()) @db.Uuid
-  name String
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String
   isAvailable Boolean @default(true)
-  orders Order[]
-  
+  orders      Order[]
+
   @@map("delivery_agents")
 }
 
@@ -49,10 +49,10 @@ model Order {
 }
 
 model Rating {
-  id        String   @id @default(uuid())
-  orderId   String   @unique
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @unique @db.Uuid
   order     Order    @relation(fields: [orderId], references: [id])
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
   rating    Int      @db.SmallInt
   comment   String?
@@ -70,7 +70,7 @@ model Restaurant {
   availabilityEnd   DateTime   @db.Time
   menuItems         MenuItem[]
   orders            Order[]
-  
+
   @@map("restaurants")
 }
 
@@ -87,11 +87,11 @@ model MenuItem {
 }
 
 model OrderItem {
-  id         String   @id @default(uuid())
+  id         String   @id @default(uuid()) @db.Uuid
   quantity   Int
   menuItemId String   @db.Uuid
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-  orderId    String
+  orderId    String   @db.Uuid
   order      Order    @relation(fields: [orderId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

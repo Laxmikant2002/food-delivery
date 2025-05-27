@@ -1,164 +1,156 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { hash, compare } from 'bcrypt';
+import { PrismaClient, OrderStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export class UserController {
-    // Get all users
-    async getAllUsers(req: Request, res: Response) {
+    // Get available restaurants
+    async getAvailableRestaurants(_: Request, res: Response) {
         try {
-            const users = await prisma.user.findMany({
-                select: {
-                    id: true,
-                    email: true,
-                    name: true
-                }
-            });
-            return res.json(users);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-            return res.status(500).json({ error: 'Failed to fetch users' });
-        }
-    }
+            const now = new Date();
+            const currentTime = `${now.getHours()}:${now.getMinutes()}`;
 
-    // Create a new user
-    async createUser(req: Request, res: Response) {
-        try {
-            const { email, password, name } = req.body;
-
-            // Basic validation
-            if (!email || !password || !name) {
-                return res.status(400).json({ error: 'Email, password, and name are required' });
-            }
-
-            // Check if user already exists
-            const existingUser = await prisma.user.findUnique({
-                where: { email }
-            });
-
-            if (existingUser) {
-                return res.status(409).json({ error: 'User with this email already exists' });
-            }
-
-            // Hash password
-            const hashedPassword = await hash(password, 10);
-
-            // Create user
-            const user = await prisma.user.create({
-                data: {
-                    email,
-                    password: hashedPassword,
-                    name
+            const restaurants = await prisma.restaurant.findMany({
+                where: {
+                    isOnline: true,
+                    AND: [
+                        { availabilityStart: { lte: currentTime } },
+                        { availabilityEnd: { gte: currentTime } }
+                    ]
                 },
-                select: {
-                    id: true,
-                    email: true,
-                    name: true
+                include: {
+                    menuItems: true
                 }
             });
-
-            return res.status(201).json(user);
+            return res.json(restaurants);
         } catch (error) {
-            console.error('Error creating user:', error);
-            return res.status(500).json({ error: 'Failed to create user' });
+            console.error('Error fetching restaurants:', error);
+            return res.status(500).json({ error: 'Failed to fetch restaurants' });
         }
     }
 
-    // Get user by ID
-    async getUserById(req: Request, res: Response) {
+    // Place a new order
+    async placeOrder(req: Request, res: Response) {
         try {
-            const { id } = req.params;
-            
-            const user = await prisma.user.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    email: true,
-                    name: true
+            const { restaurantId, items, deliveryAddress } = req.body;
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return res.status(401).json({ error: 'Authentication required' });
+            }
+
+            if (!restaurantId || !items?.length || !deliveryAddress) {
+                return res.status(400).json({ error: 'Restaurant ID, items, and delivery address are required' });
+            }
+
+            const restaurant = await prisma.restaurant.findUnique({
+                where: { id: restaurantId },
+                include: { menuItems: true }
+            });
+
+            if (!restaurant || !restaurant.isOnline) {
+                return res.status(400).json({ error: 'Restaurant not available' });
+            }
+
+            const menuItems = await prisma.menuItem.findMany({
+                where: {
+                    id: {
+                        in: items.map(item => item.menuItemId)
+                    }
                 }
             });
 
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+            if (menuItems.length !== items.length) {
+                return res.status(400).json({ error: 'Some menu items not found' });
             }
 
-            return res.json(user);
-        } catch (error) {
-            console.error('Error fetching user:', error);
-            return res.status(500).json({ error: 'Failed to fetch user' });
-        }
-    }
+            const total = items.reduce((sum, item) => {
+                const menuItem = menuItems.find(mi => mi.id === item.menuItemId);
+                return sum + (menuItem?.price || 0) * item.quantity;
+            }, 0);
 
-    // Update user
-    async updateUser(req: Request, res: Response) {
-        try {
-            const { id } = req.params;
-            const { email, name } = req.body;
-
-            // Check if user exists
-            const existingUser = await prisma.user.findUnique({
-                where: { id }
-            });
-
-            if (!existingUser) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-
-            // Update user
-            const user = await prisma.user.update({
-                where: { id },
+            const order = await prisma.order.create({
                 data: {
-                    ...(email && { email }),
-                    ...(name && { name })
+                    userId,
+                    restaurantId,
+                    status: OrderStatus.PENDING,
+                    total,
+                    deliveryAddress,
+                    items: {
+                        create: items.map(item => ({
+                            quantity: item.quantity,
+                            menuItemId: item.menuItemId
+                        }))
+                    }
                 },
-                select: {
-                    id: true,
-                    email: true,
-                    name: true
+                include: {
+                    items: {
+                        include: {
+                            menuItem: true
+                        }
+                    },
+                    restaurant: true
                 }
             });
 
-            return res.json(user);
+            return res.status(201).json(order);
         } catch (error) {
-            console.error('Error updating user:', error);
-            return res.status(500).json({ error: 'Failed to update user' });
+            console.error('Error placing order:', error);
+            return res.status(500).json({ error: 'Failed to place order' });
         }
     }
 
-    // Delete user
-    async deleteUser(req: Request, res: Response) {
+    // Submit a rating
+    async submitRating(req: Request, res: Response) {
         try {
-            const { id } = req.params;
-            
-            // Check if user exists
-            const existingUser = await prisma.user.findUnique({
-                where: { id }
-            });
+            const { orderId, rating, comment } = req.body;
+            const userId = req.user?.id;
 
-            if (!existingUser) {
-                return res.status(404).json({ error: 'User not found' });
+            if (!userId) {
+                return res.status(401).json({ error: 'Authentication required' });
             }
 
-            // Delete user
-            await prisma.user.delete({
-                where: { id }
+            if (!orderId || rating === undefined) {
+                return res.status(400).json({ error: 'Order ID and rating are required' });
+            }
+
+            const order = await prisma.order.findUnique({
+                where: { id: orderId }
             });
 
-            return res.json({ message: 'User deleted successfully' });
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            if (order.userId !== userId) {
+                return res.status(403).json({ error: 'Not authorized to rate this order' });
+            }
+
+            if (order.status !== OrderStatus.DELIVERED) {
+                return res.status(400).json({ error: 'Can only rate delivered orders' });
+            }
+
+            const existingRating = await prisma.rating.findFirst({
+                where: { orderId }
+            });
+
+            if (existingRating) {
+                return res.status(400).json({ error: 'Order has already been rated' });
+            }
+
+            const newRating = await prisma.rating.create({
+                data: {
+                    orderId,
+                    userId,
+                    rating,
+                    comment
+                }
+            });
+
+            return res.status(201).json(newRating);
         } catch (error) {
-            console.error('Error deleting user:', error);
-            return res.status(500).json({ error: 'Failed to delete user' });
+            console.error('Error submitting rating:', error);
+            return res.status(500).json({ error: 'Failed to submit rating' });
         }
-    }
-
-    // Method to update user profile
-    async updateProfile(req: Request, res: Response) {
-        // Logic to update user profile here
-    }
-
-    // Method to delete user account
-    async deleteAccount(req: Request, res: Response) {
-        // Logic to delete user account here
     }
 }
