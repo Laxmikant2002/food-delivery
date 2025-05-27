@@ -5,26 +5,30 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy package files
+# Copy root workspace files
 COPY package.json pnpm-lock.yaml ./
+COPY ../../pnpm-workspace.yaml ./
+
+# Copy service package.json
+COPY packages/delivery-agent-service/package.json ./packages/delivery-agent-service/
 
 # Install dependencies
 RUN pnpm install
 
 # Copy prisma schema
-COPY prisma ./prisma/
+COPY packages/delivery-agent-service/prisma ./packages/delivery-agent-service/prisma/
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN cd packages/delivery-agent-service && npx prisma generate
 
 # Copy source code
-COPY . .
+COPY packages/delivery-agent-service ./packages/delivery-agent-service/
 
-# Build TypeScript
-RUN pnpm build
+# Build TypeScript code
+RUN cd packages/delivery-agent-service && pnpm build
 
-# Expose port
+# Expose the port
 EXPOSE 4002
 
 # Start the service
-CMD ["pnpm", "start"]
+CMD ["pnpm", "--filter", "delivery-agent-service", "start"]

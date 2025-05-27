@@ -1,0 +1,59 @@
+services:
+  # User Service
+  - type: web
+    name: food-delivery-user-service
+    env: docker
+    buildCommand: docker build -f packages/user-service/Dockerfile -t user-service .
+    startCommand: docker run -p 4000:4000 user-service
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: packages/user-service
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+  # Restaurant Service
+  - type: web
+    name: food-delivery-restaurant-service
+    env: docker
+    buildCommand: docker build -f packages/restaurant-service/Dockerfile -t restaurant-service .
+    startCommand: docker run -p 4001:4001 restaurant-service
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: packages/restaurant-service
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4001
+
+  # Delivery Agent Service
+  - type: web
+    name: food-delivery-delivery-service
+    env: docker
+    repo: https://github.com/YOUR_USERNAME/food-delivery-monorepo
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: packages/delivery-agent-service
+    dockerfilePath: ./packages/delivery-agent-service/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4002
