@@ -20,10 +20,10 @@ RUN npx prisma generate
 # Copy source code
 COPY . .
 
-# Build TypeScript
+# Build TypeScript code
 RUN pnpm build
 
-# Expose port
+# Expose the port
 EXPOSE 4000
 
 # Start the service
